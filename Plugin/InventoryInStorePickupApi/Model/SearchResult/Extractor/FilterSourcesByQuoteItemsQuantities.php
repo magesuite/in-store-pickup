@@ -37,7 +37,7 @@ class FilterSourcesByQuoteItemsQuantities
 
         $items = $this->checkoutSession->getQuote()->getAllItems();
 
-        if (empty($items)) { die('q');
+        if (empty($items)) {
             return $result;
         }
 
