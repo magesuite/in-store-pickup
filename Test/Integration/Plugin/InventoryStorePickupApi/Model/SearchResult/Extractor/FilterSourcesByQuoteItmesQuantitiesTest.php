@@ -94,7 +94,7 @@ class FilterSourcesByQuoteItmesQuantitiesTest extends \PHPUnit\Framework\TestCas
         ];
 
         $this->checkoutSessionMock->method('getQuote')->willReturn($this->prepareQuote());
-        $this->configurationMock->method('displayOnlyAvailableStores')->willReturn(false);
+        $this->configurationMock->method('displayOnlySourcesWithAllCartItemsInStock')->willReturn(false);
         $this->sourceResourceMock->method('getItemsAvailableInSources')->willReturn($itemAvailableOnlyInOneSource);
 
         $sources = $this->getSources();
@@ -119,7 +119,7 @@ class FilterSourcesByQuoteItmesQuantitiesTest extends \PHPUnit\Framework\TestCas
         ];
 
         $this->checkoutSessionMock->method('getQuote')->willReturn($this->prepareQuote());
-        $this->configurationMock->method('displayOnlyAvailableStores')->willReturn(true);
+        $this->configurationMock->method('displayOnlySourcesWithAllCartItemsInStock')->willReturn(true);
         $this->sourceResourceMock->method('getItemsAvailableInSources')->willReturn($itemAvailableOnlyInOneSource);
 
         $sources = $this->getSources();
@@ -142,7 +142,7 @@ class FilterSourcesByQuoteItmesQuantitiesTest extends \PHPUnit\Framework\TestCas
         ];
 
         $this->checkoutSessionMock->method('getQuote')->willReturn($this->prepareQuote());
-        $this->configurationMock->method('displayOnlyAvailableStores')->willReturn(true);
+        $this->configurationMock->method('displayOnlySourcesWithAllCartItemsInStock')->willReturn(true);
         $this->sourceResourceMock->method('getItemsAvailableInSources')->willReturn($itemIsNotAvailableIsSources);
 
         $sources = $this->getSources();

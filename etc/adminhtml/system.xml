@@ -10,11 +10,11 @@
             <resource>MageSuite_InStorePickup::configuration</resource>
             <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>General</label>
-                <field id="display_only_available_stores" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="display_only_sources_with_all_cart_items_in_stock" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Display only available stores</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>
-                        <![CDATA[Display only those shores in In Store Pickup where customer can pick up whole order.]]>
+                        <![CDATA[Display only sources that have all items from customer cart available in stock.]]>
                     </comment>
                 </field>
             </group>

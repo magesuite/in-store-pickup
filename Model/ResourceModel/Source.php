@@ -16,12 +16,19 @@ class Source
 
     public function getItemsAvailableInSources($quoteItemsQuantities)
     {
+        $skus = array_keys($quoteItemsQuantities);
+        $reservedQuantitiesBySourceCode = $this->getReservedQuantitiesBySourceCode($skus);
+
         $select = $this->resourceConnection->getConnection()
             ->select()
             ->from(['isi' => $this->resourceConnection->getTableName('inventory_source_item')])
-            ->where('isi.sku IN (?)', array_keys($quoteItemsQuantities));
+            ->where('isi.sku IN (?)', $skus);
 
-        $sourceItems = $this->resourceConnection->getConnection()->fetchAll($select);
+        try {
+            $sourceItems = $this->resourceConnection->getConnection()->fetchAll($select);
+        } catch (\Exception $e) {
+            return [];
+        }
 
         if (empty($sourceItems)) {
             return [];
@@ -30,11 +37,15 @@ class Source
         $itemsAvailableInSource = [];
 
         foreach($sourceItems as $sourceItem) {
-            if ($sourceItem['quantity'] < 1 || $sourceItem['status'] == 0) {
+            $reservedQuantity = $reservedQuantitiesBySourceCode[$sourceItem['sku']][$sourceItem['source_code']] ?? 0;
+            $sourceItemQtyWithReservations = $sourceItem['quantity'] + $reservedQuantity;
+
+
+            if ($sourceItemQtyWithReservations < 1 || $sourceItem['status'] == 0) {
                 continue;
             }
 
-            if ($sourceItem['quantity'] < $quoteItemsQuantities[$sourceItem['sku']]) {
+            if ($sourceItemQtyWithReservations < $quoteItemsQuantities[$sourceItem['sku']]) {
                 continue;
             }
 
@@ -46,5 +57,66 @@ class Source
         }
 
         return $itemsAvailableInSource;
+    }
+
+    protected function getReservedQuantitiesBySourceCode($skus)
+    {
+        $select = $this->resourceConnection->getConnection()
+            ->select()
+            ->from(['reservation' => $this->resourceConnection->getTableName('inventory_reservation')])
+            ->where('reservation.sku IN (?)', $skus);
+
+        try {
+            $reservations = $this->resourceConnection->getConnection()->fetchAll($select);
+        } catch (\Exception $e) {
+            return [];
+        }
+
+        $orderIncrementIdsWithPickupLocationCode = $this->getOrderIncrementIdsWithPickupLocationCode($reservations);
+
+        if (empty($orderIncrementIdsWithPickupLocationCode)) {
+            return [];
+        }
+
+        $reservedQuantitiesBySourceCode = [];
+
+        foreach ($reservations as $key => $reservation) {
+            $metadata = json_decode($reservation['metadata'], true);
+            $pickupLocationCode = $orderIncrementIdsWithPickupLocationCode[$metadata['object_increment_id']] ?? null;
+
+            if (!$pickupLocationCode) {
+                continue;
+            }
+
+            $reservedQuantitiesBySourceCode = $this->addReservedQuantity($reservedQuantitiesBySourceCode, $pickupLocationCode, $reservation);
+        }
+
+        return $reservedQuantitiesBySourceCode;
+    }
+
+    protected function getOrderIncrementIdsWithPickupLocationCode($reservations)
+    {
+        $orderIncrementIds = [];
+
+        foreach ($reservations as $reservation) {
+            $metadata = json_decode($reservation['metadata'], true);
+            $orderIncrementIds[] = $metadata['object_increment_id'];
+        }
+
+        $select = $this->resourceConnection->getConnection()
+            ->select()
+            ->from($this->resourceConnection->getTableName('sales_order'), ['increment_id', 'pickup_location_code'])
+            ->where('increment_id IN (?)', $orderIncrementIds)
+            ->where('pickup_location_code IS NOT NULL');
+
+        return $this->resourceConnection->getConnection()->fetchPairs($select);
+    }
+
+    private function addReservedQuantity($reservedQuantitiesBySourceCode, $pickupLocationCode, $reservation)
+    {
+        $currentQty = $reservedQuantitiesBySourceCode[$reservation['sku']][$pickupLocationCode] ?? 0;
+        $reservedQuantitiesBySourceCode[$reservation['sku']][$pickupLocationCode] = $currentQty + $reservation['quantity'];
+
+        return $reservedQuantitiesBySourceCode;
     }
 }

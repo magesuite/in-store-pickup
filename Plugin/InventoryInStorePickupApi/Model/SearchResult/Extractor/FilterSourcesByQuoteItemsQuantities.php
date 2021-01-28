@@ -31,7 +31,7 @@ class FilterSourcesByQuoteItemsQuantities
 
     public function afterGetSources(\Magento\InventoryInStorePickupApi\Model\SearchResult\Extractor $subject, $result)
     {
-        if (!$this->configuration->displayOnlyAvailableStores() || empty($result)) {
+        if (empty($result) || !$this->configuration->displayOnlySourcesWithAllCartItemsInStock()) {
             return $result;
         }
 

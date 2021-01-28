@@ -3,7 +3,7 @@
     <default>
         <in_store_pickup>
             <general>
-                <display_only_available_stores>0</display_only_available_stores>
+                <display_only_sources_with_all_cart_items_in_stock>0</display_only_sources_with_all_cart_items_in_stock>
             </general>
         </in_store_pickup>
     </default>
