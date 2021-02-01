@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <in_store_pickup>
+            <general>
+                <display_only_sources_with_all_cart_items_in_stock>0</display_only_sources_with_all_cart_items_in_stock>
+            </general>
+        </in_store_pickup>
+    </default>
+</config>
