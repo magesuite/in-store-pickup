@@ -40,6 +40,11 @@ class FilterSourcesByQuoteItmesQuantitiesTest extends \PHPUnit\Framework\TestCas
     protected $checkoutSessionMock;
 
     /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $quoteRepositoryMock;
+
+    /**
      * @var \MageSuite\InStorePickup\Model\ResourceModel\Source|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $sourceResourceMock;
@@ -66,6 +71,10 @@ class FilterSourcesByQuoteItmesQuantitiesTest extends \PHPUnit\Framework\TestCas
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->quoteRepositoryMock = $this->getMockBuilder(\Magento\Quote\Api\CartRepositoryInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->sourceResourceMock = $this->getMockBuilder(\MageSuite\InStorePickup\Model\ResourceModel\Source::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -75,6 +84,7 @@ class FilterSourcesByQuoteItmesQuantitiesTest extends \PHPUnit\Framework\TestCas
             [
                 'configuration' => $this->configurationMock,
                 'checkoutSession' => $this->checkoutSessionMock,
+                'quoteRepository' => $this->quoteRepositoryMock,
                 'sourceResource' => $this->sourceResourceMock
             ]
         );
@@ -93,7 +103,8 @@ class FilterSourcesByQuoteItmesQuantitiesTest extends \PHPUnit\Framework\TestCas
             'second' => 0
         ];
 
-        $this->checkoutSessionMock->method('getQuote')->willReturn($this->prepareQuote());
+        $this->checkoutSessionMock->method('getQuoteId')->willReturn(1);
+        $this->quoteRepositoryMock->method('get')->willReturn($this->prepareQuote());
         $this->configurationMock->method('displayOnlySourcesWithAllCartItemsInStock')->willReturn(false);
         $this->sourceResourceMock->method('getItemsAvailableInSources')->willReturn($itemAvailableOnlyInOneSource);
 
@@ -118,7 +129,8 @@ class FilterSourcesByQuoteItmesQuantitiesTest extends \PHPUnit\Framework\TestCas
             'second' => 0
         ];
 
-        $this->checkoutSessionMock->method('getQuote')->willReturn($this->prepareQuote());
+        $this->checkoutSessionMock->method('getQuoteId')->willReturn(1);
+        $this->quoteRepositoryMock->method('get')->willReturn($this->prepareQuote());
         $this->configurationMock->method('displayOnlySourcesWithAllCartItemsInStock')->willReturn(true);
         $this->sourceResourceMock->method('getItemsAvailableInSources')->willReturn($itemAvailableOnlyInOneSource);
 
@@ -141,7 +153,8 @@ class FilterSourcesByQuoteItmesQuantitiesTest extends \PHPUnit\Framework\TestCas
             'first' => 0,
         ];
 
-        $this->checkoutSessionMock->method('getQuote')->willReturn($this->prepareQuote());
+        $this->checkoutSessionMock->method('getQuoteId')->willReturn(1);
+        $this->quoteRepositoryMock->method('get')->willReturn($this->prepareQuote());
         $this->configurationMock->method('displayOnlySourcesWithAllCartItemsInStock')->willReturn(true);
         $this->sourceResourceMock->method('getItemsAvailableInSources')->willReturn($itemIsNotAvailableIsSources);
 
