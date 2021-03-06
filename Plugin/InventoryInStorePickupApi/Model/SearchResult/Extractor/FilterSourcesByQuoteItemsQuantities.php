@@ -15,6 +15,11 @@ class FilterSourcesByQuoteItemsQuantities
     protected $checkoutSession;
 
     /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface
+     */
+    protected $quoteRepository;
+
+    /**
      * @var \MageSuite\InStorePickup\Model\ResourceModel\Source
      */
     protected $sourceResource;
@@ -22,10 +27,12 @@ class FilterSourcesByQuoteItemsQuantities
     public function __construct(
         \MageSuite\InStorePickup\Helper\Configuration $configuration,
         \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \MageSuite\InStorePickup\Model\ResourceModel\Source $sourceResource
     ) {
         $this->configuration = $configuration;
         $this->checkoutSession = $checkoutSession;
+        $this->quoteRepository = $quoteRepository;
         $this->sourceResource = $sourceResource;
     }
 
@@ -35,7 +42,14 @@ class FilterSourcesByQuoteItemsQuantities
             return $result;
         }
 
-        $items = $this->checkoutSession->getQuote()->getAllItems();
+        $quoteId = $this->checkoutSession->getQuoteId();
+
+        if (empty($quoteId)) {
+            return $result;
+        }
+
+        $quote = $this->quoteRepository->get($quoteId);
+        $items = $quote->getAllItems();
 
         if (empty($items)) {
             return $result;
