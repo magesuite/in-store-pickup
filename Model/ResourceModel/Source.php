@@ -4,17 +4,14 @@ namespace MageSuite\InStorePickup\Model\ResourceModel;
 
 class Source
 {
-    /**
-     * @var \Magento\Framework\App\ResourceConnection
-     */
-    protected $resourceConnection;
+    protected \Magento\Framework\App\ResourceConnection $resourceConnection;
 
     public function __construct(\Magento\Framework\App\ResourceConnection $resourceConnection)
     {
         $this->resourceConnection = $resourceConnection;
     }
 
-    public function getItemsAvailableInSources($quoteItemsQuantities)
+    public function getItemsAvailableInSources($quoteItemsQuantities): array
     {
         $skus = array_keys($quoteItemsQuantities);
         $reservedQuantitiesBySourceCode = $this->getReservedQuantitiesBySourceCode($skus);
@@ -59,7 +56,7 @@ class Source
         return $itemsAvailableInSource;
     }
 
-    protected function getReservedQuantitiesBySourceCode($skus)
+    public function getReservedQuantitiesBySourceCode(array $skus): array
     {
         $select = $this->resourceConnection->getConnection()
             ->select()
@@ -80,7 +77,7 @@ class Source
 
         $reservedQuantitiesBySourceCode = [];
 
-        foreach ($reservations as $key => $reservation) {
+        foreach ($reservations as $reservation) {
             $metadata = json_decode($reservation['metadata'], true);
             $pickupLocationCode = $orderIncrementIdsWithPickupLocationCode[$metadata['object_increment_id']] ?? null;
 
