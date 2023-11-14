@@ -5,4 +5,3 @@
     'MageSuite_InStorePickup',
     __DIR__
 );
-
